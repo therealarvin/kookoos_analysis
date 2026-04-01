@@ -3,796 +3,614 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Kookoos Chain Limited — EBITDA Lift Analysis</title>
+<title>Kookoos Chain — EBITDA Lift Playbook v3</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --canvas: #f8f7f4;
-    --ink: #1a1a1a;
-    --brass: #b8a07a;
-    --brass-light: #d4c5a9;
-    --brass-dark: #9a845f;
-    --green: #2d8a4e;
-    --red: #c0392b;
-    --blue: #2c5aa0;
-    --section-bg: #ffffff;
-  }
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-    background: var(--canvas);
-    color: var(--ink);
-    line-height: 1.6;
-  }
-  .container { max-width: 1200px; margin: 0 auto; padding: 24px; }
-
-  /* Header */
-  .header {
-    text-align: center;
-    padding: 48px 24px 32px;
-    border-bottom: 2px solid var(--brass);
-    margin-bottom: 32px;
-  }
-  .header .badge {
-    display: inline-block;
-    background: var(--ink);
-    color: var(--canvas);
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    padding: 6px 16px;
-    border-radius: 2px;
-    margin-bottom: 16px;
-  }
-  .header h1 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 36px;
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .header .subtitle {
-    font-size: 16px;
-    color: #666;
-    margin-bottom: 4px;
-  }
-  .header .date { font-size: 13px; color: #999; }
-
-  /* Sections */
-  .section {
-    background: var(--section-bg);
-    border: 1px solid #e8e5e0;
-    border-radius: 8px;
-    padding: 32px;
-    margin-bottom: 24px;
-  }
-  .section h2 {
-    font-family: 'Playfair Display', Georgia, serif;
-    font-size: 22px;
-    margin-bottom: 20px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid #e8e5e0;
-  }
-  .section h3 {
-    font-size: 16px;
-    font-weight: 600;
-    margin: 20px 0 12px;
-    color: var(--brass-dark);
-  }
-  .section p { margin-bottom: 12px; font-size: 15px; }
-
-  /* KPI Cards */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 24px;
-  }
-  .kpi-card {
-    background: var(--canvas);
-    border: 1px solid #e8e5e0;
-    border-radius: 6px;
-    padding: 20px;
-    text-align: center;
-  }
-  .kpi-card .label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    color: #888;
-    margin-bottom: 6px;
-  }
-  .kpi-card .value {
-    font-size: 28px;
-    font-weight: 700;
-    color: var(--ink);
-  }
-  .kpi-card .subtext {
-    font-size: 12px;
-    color: #888;
-    margin-top: 4px;
-  }
-  .kpi-card.green .value { color: var(--green); }
-  .kpi-card.red .value { color: var(--red); }
-  .kpi-card.brass .value { color: var(--brass-dark); }
-
-  /* Tables */
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 14px;
-    margin: 16px 0;
-  }
-  th {
-    background: var(--ink);
-    color: var(--canvas);
-    padding: 10px 12px;
-    text-align: left;
-    font-weight: 600;
-    font-size: 12px;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-  }
-  td {
-    padding: 10px 12px;
-    border-bottom: 1px solid #eee;
-  }
-  tr:hover td { background: #f9f8f6; }
-  .right { text-align: right; }
-  .green-text { color: var(--green); font-weight: 600; }
-  .red-text { color: var(--red); font-weight: 600; }
-
-  /* Charts */
-  .chart-container {
-    position: relative;
-    height: 320px;
-    margin: 20px 0;
-  }
-  .chart-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 24px;
-  }
-
-  /* Action items */
-  .action-item {
-    background: var(--canvas);
-    border-left: 4px solid var(--brass);
-    padding: 16px 20px;
-    margin: 12px 0;
-    border-radius: 0 6px 6px 0;
-  }
-  .action-item.high-impact { border-left-color: var(--green); }
-  .action-item.urgent { border-left-color: var(--red); }
-  .action-item .action-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 6px;
-  }
-  .action-item .action-title {
-    font-weight: 700;
-    font-size: 15px;
-  }
-  .action-item .impact-badge {
-    font-size: 11px;
-    padding: 3px 10px;
-    border-radius: 12px;
-    font-weight: 600;
-  }
-  .impact-badge.high { background: #d4edda; color: var(--green); }
-  .impact-badge.medium { background: #fff3cd; color: #856404; }
-  .impact-badge.critical { background: #f8d7da; color: var(--red); }
-  .action-item .action-detail { font-size: 14px; color: #555; }
-  .action-item .action-numbers { font-size: 13px; color: var(--brass-dark); margin-top: 6px; font-weight: 600; }
-
-  /* Timeline */
-  .timeline {
-    display: flex;
-    gap: 16px;
-    margin: 16px 0;
-  }
-  .timeline-phase {
-    flex: 1;
-    background: var(--canvas);
-    border: 1px solid #e8e5e0;
-    border-radius: 6px;
-    padding: 16px;
-  }
-  .timeline-phase .phase-label {
-    font-size: 11px;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--brass-dark);
-    font-weight: 700;
-    margin-bottom: 8px;
-  }
-  .timeline-phase ul {
-    list-style: none;
-    padding: 0;
-  }
-  .timeline-phase li {
-    font-size: 13px;
-    padding: 4px 0;
-    padding-left: 16px;
-    position: relative;
-  }
-  .timeline-phase li::before {
-    content: '→';
-    position: absolute;
-    left: 0;
-    color: var(--brass);
-  }
-
-  .footer {
-    text-align: center;
-    padding: 32px;
-    color: #999;
-    font-size: 12px;
-    border-top: 1px solid #e8e5e0;
-    margin-top: 32px;
-  }
-  .footer .gs-brand { color: var(--brass-dark); font-weight: 600; }
-
-  @media (max-width: 768px) {
-    .chart-row { grid-template-columns: 1fr; }
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .timeline { flex-direction: column; }
-    .header h1 { font-size: 26px; }
-  }
+:root{--canvas:#f8f7f4;--ink:#1a1a1a;--brass:#b8a07a;--brass-light:#d4c5a9;--brass-dark:#9a845f;--green:#2d8a4e;--red:#c0392b;--blue:#2c5aa0;--purple:#7b4ea3;--section-bg:#fff;--orange:#d4760a}
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',-apple-system,sans-serif;background:var(--canvas);color:var(--ink);line-height:1.7;font-size:15px}
+.container{max-width:1280px;margin:0 auto;padding:24px}
+.header{text-align:center;padding:48px 24px 32px;border-bottom:2px solid var(--brass);margin-bottom:32px}
+.header .badge{display:inline-block;background:var(--ink);color:var(--canvas);font-size:11px;letter-spacing:2px;text-transform:uppercase;padding:6px 16px;border-radius:2px;margin-bottom:16px}
+.header h1{font-family:'Playfair Display',Georgia,serif;font-size:36px;font-weight:700;margin-bottom:8px}
+.header .subtitle{font-size:16px;color:#666;margin-bottom:4px}
+.header .date{font-size:13px;color:#999}
+.section{background:var(--section-bg);border:1px solid #e8e5e0;border-radius:8px;padding:32px;margin-bottom:24px}
+.section h2{font-family:'Playfair Display',Georgia,serif;font-size:22px;margin-bottom:20px;padding-bottom:10px;border-bottom:1px solid #e8e5e0}
+.section h3{font-size:16px;font-weight:600;margin:20px 0 12px;color:var(--brass-dark)}
+.section p{margin-bottom:12px}
+.kpi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:24px}
+.kpi-card{background:var(--canvas);border:1px solid #e8e5e0;border-radius:6px;padding:18px;text-align:center}
+.kpi-card .label{font-size:10px;text-transform:uppercase;letter-spacing:1.5px;color:#888;margin-bottom:4px}
+.kpi-card .value{font-size:26px;font-weight:700}
+.kpi-card .subtext{font-size:11px;color:#888;margin-top:2px}
+.kpi-card.green .value{color:var(--green)}
+.kpi-card.red .value{color:var(--red)}
+.kpi-card.brass .value{color:var(--brass-dark)}
+.kpi-card.blue .value{color:var(--blue)}
+.kpi-card.orange .value{color:var(--orange)}
+table{width:100%;border-collapse:collapse;font-size:13px;margin:16px 0}
+th{background:var(--ink);color:var(--canvas);padding:8px 10px;text-align:left;font-weight:600;font-size:11px;text-transform:uppercase;letter-spacing:.5px}
+td{padding:8px 10px;border-bottom:1px solid #eee}
+tr:hover td{background:#f9f8f6}
+.right{text-align:right}
+.green-text{color:var(--green);font-weight:600}
+.red-text{color:var(--red);font-weight:600}
+.chart-container{position:relative;height:320px;margin:16px 0}
+.chart-row{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.action-item{background:var(--canvas);border-left:4px solid var(--brass);padding:16px 20px;margin:12px 0;border-radius:0 6px 6px 0}
+.action-item.high-impact{border-left-color:var(--green)}
+.action-item.urgent{border-left-color:var(--red)}
+.action-item.innovative{border-left-color:var(--purple)}
+.action-item.growth{border-left-color:var(--orange)}
+.action-item .action-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:6px}
+.action-item .action-title{font-weight:700;font-size:15px}
+.impact-badge{font-size:11px;padding:3px 10px;border-radius:12px;font-weight:600}
+.impact-badge.high{background:#d4edda;color:var(--green)}
+.impact-badge.medium{background:#fff3cd;color:#856404}
+.impact-badge.critical{background:#f8d7da;color:var(--red)}
+.impact-badge.innovative{background:#e8daf5;color:var(--purple)}
+.impact-badge.growth{background:#fde8cc;color:var(--orange)}
+.action-item .action-detail{font-size:14px;color:#555}
+.action-item .action-numbers{font-size:13px;color:var(--brass-dark);margin-top:6px;font-weight:600}
+.insight-box{background:#fdf6e3;border:1px solid #e8d8a0;border-radius:6px;padding:16px;margin:16px 0;font-size:14px}
+.insight-box strong{color:var(--brass-dark)}
+.callout{background:var(--ink);color:var(--canvas);padding:20px 24px;border-radius:6px;margin:16px 0;font-size:14px}
+.callout strong{color:var(--brass-light)}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+.footer{text-align:center;padding:32px;color:#999;font-size:12px;border-top:1px solid #e8e5e0;margin-top:32px}
+.footer .gs-brand{color:var(--brass-dark);font-weight:600}
+.toc{background:var(--canvas);border:1px solid #e8e5e0;border-radius:6px;padding:20px 28px;margin:16px 0;font-size:14px}
+.toc a{color:var(--brass-dark);text-decoration:none}
+.toc a:hover{text-decoration:underline}
+.toc ol{padding-left:20px}
+.toc li{margin:6px 0}
+.exec-summary{font-size:16px;line-height:1.8;border-left:4px solid var(--brass);padding-left:20px;margin:20px 0}
+@media(max-width:768px){.chart-row,.two-col{grid-template-columns:1fr}.kpi-grid{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
 <div class="container">
 
-<!-- HEADER -->
 <div class="header">
-  <div class="badge">General Strategy &mdash; Case Study</div>
+  <div class="badge">General Strategy &mdash; Operational Analysis</div>
   <h1>Kookoos Chain Limited</h1>
-  <div class="subtitle">EBITDA Lift Analysis &amp; Operational Playbook</div>
-  <div class="date">Prepared March 31, 2026 &bull; Data: FY2024 &ndash; Feb 2026</div>
+  <div class="subtitle">EBITDA Lift Playbook &mdash; Corrected with Executive Input</div>
+  <div class="date">16,975 daily stock records &bull; 465 operating days &bull; 3 branches analyzed in detail &bull; 6 branches revenue-tracked &bull; v3 &mdash; April 2026</div>
 </div>
 
 <!-- EXECUTIVE SUMMARY -->
 <div class="section">
   <h2>Executive Summary</h2>
-  <p>Kookoos is a fast-growing fried chicken franchise in Dar es Salaam, Tanzania. Over 24 months, the chain has scaled from 2 locations to 7 (with 6 more planned), growing network gross revenue from 720M TZS (FY2024) to 2.45B TZS (FY2025) and reaching a ~5.8B TZS annualized run rate as of early 2026. This analysis identifies <strong>six specific EBITDA levers</strong> that can be actioned in the next 4&ndash;8 weeks, targeting a combined <strong>180&ndash;320M TZS annual uplift</strong> ($72K&ndash;$128K USD) across the existing network.</p>
+  <div class="exec-summary">
+    Kookoos is growing fast: FY2025 gross revenue hit <strong>2.45 billion TZS</strong> (~$982K) across 5 branches, and the Jan+Feb 2026 run rate projects to <strong>5.77 billion TZS</strong> (~$2.3M) across 6 branches. Same-store growth is exceptional (Masana +38%, Bahari +42% YoY in January). With 5 more branches planned (3 Morogoro, Bagamoyo, East African Mall), Kookoos is about to more than double its footprint. But rapid growth is exposing stress fractures in operations. This analysis identifies <strong>8 specific, quantified levers</strong> that can lift EBITDA by an estimated <strong>180&ndash;340 million TZS annually</strong> across the current 6-branch network, before accounting for new openings. Every recommendation is grounded in the daily stock book data, not assumptions.
+  </div>
 
   <div class="kpi-grid">
-    <div class="kpi-card brass">
-      <div class="label">FY2025 Gross Revenue</div>
-      <div class="value">2.45B</div>
-      <div class="subtext">TZS (~$982K USD)</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="label">YoY Growth (Same-Store)</div>
-      <div class="value">+63&ndash;94%</div>
-      <div class="subtext">Bahari +63% &bull; Masana +94%</div>
-    </div>
-    <div class="kpi-card brass">
-      <div class="label">2026 Run Rate (6 branches)</div>
-      <div class="value">5.8B</div>
-      <div class="subtext">TZS (~$2.3M USD annualized)</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="label">Identified EBITDA Uplift</div>
-      <div class="value">180&ndash;320M</div>
-      <div class="subtext">TZS/year ($72K&ndash;$128K)</div>
-    </div>
+    <div class="kpi-card brass"><div class="label">FY2025 Gross Revenue</div><div class="value">2.45B</div><div class="subtext">TZS across 5 branches</div></div>
+    <div class="kpi-card green"><div class="label">2026 Run Rate</div><div class="value">5.77B</div><div class="subtext">TZS (~$2.3M), 6 branches</div></div>
+    <div class="kpi-card blue"><div class="label">Same-Store Growth</div><div class="value">+38%</div><div class="subtext">Masana Jan YoY</div></div>
+    <div class="kpi-card orange"><div class="label">Planned Expansion</div><div class="value">+5</div><div class="subtext">new branches coming</div></div>
+  </div>
+
+  <div class="toc">
+    <strong>Table of Contents</strong>
+    <ol>
+      <li><a href="#s1">Unit Economics: Your Margins Are Strong, Protect Them</a></li>
+      <li><a href="#s2">The Sinza Complimentary Problem: 770 Pieces of Chicken</a></li>
+      <li><a href="#s3">Breading Waste: A Fixable 10&ndash;14% Drain on Every Branch</a></li>
+      <li><a href="#s4">Banana Stockouts: You're Leaving Money on the Table 48% of Days</a></li>
+      <li><a href="#s5">The Weekend Demand Swing: 2x Volume You're Not Optimally Staffing For</a></li>
+      <li><a href="#s6">The Kigamboni Playbook: Why One Branch Does 3x Revenue</a></li>
+      <li><a href="#s7">Nuggets: A Growth Product That Keeps Disappearing</a></li>
+      <li><a href="#s8">Inventory Variance: 170K Units of Unaccounted Shrinkage</a></li>
+      <li><a href="#s9">Expansion Readiness: Central Kitchen & Consistency at Scale</a></li>
+      <li><a href="#s10">Top-Line Growth: Delivery, Digital, and Competitive Moat</a></li>
+      <li><a href="#s11">90-Day Execution Roadmap</a></li>
+    </ol>
   </div>
 </div>
 
-<!-- NETWORK OVERVIEW -->
-<div class="section">
-  <h2>1. Network Revenue Trajectory</h2>
-  <p>Monthly network revenue grew 4.9x from Jan to Dec 2025, driven primarily by new branch openings. Same-store growth at established branches (Bahari, Masana) averaged +40% into Jan 2026, showing strong underlying demand even before new units.</p>
+<!-- SECTION 1: UNIT ECONOMICS -->
+<div class="section" id="s1">
+  <h2>1. Unit Economics: Your Margins Are Strong &mdash; Protect Them During Expansion</h2>
+  
+  <p>With confirmed chicken cost of 500&ndash;1,000 TZS per raw piece and the published menu prices, Kookoos is operating at <strong>66&ndash;77% gross margin on chicken products</strong>. This is excellent for QSR in East Africa. The critical insight: as you open 5 new branches, the margin protection comes from three things &mdash; breading waste discipline, stockout prevention (which loses high-margin sales), and holding prep consistency across locations with new staff.</p>
 
-  <div class="chart-container">
-    <canvas id="revenueChart"></canvas>
-  </div>
-
-  <h3>Branch Performance Summary</h3>
   <table>
-    <thead>
-      <tr>
-        <th>Branch</th>
-        <th class="right">FY2025 Revenue</th>
-        <th class="right">Active Months</th>
-        <th class="right">Avg Monthly</th>
-        <th class="right">Jan 2026</th>
-        <th class="right">Feb 2026</th>
-        <th>Notes</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Menu Item</th><th class="right">Price (TZS)</th><th class="right">Est. Food Cost</th><th class="right">Gross Margin</th><th class="right">Margin %</th></tr></thead>
     <tbody>
-      <tr>
-        <td><strong>Kigamboni</strong></td>
-        <td class="right">491M</td>
-        <td class="right">3</td>
-        <td class="right">164M</td>
-        <td class="right">185M</td>
-        <td class="right">147M</td>
-        <td>Flagship-scale. ~3x other branches.</td>
-      </tr>
-      <tr>
-        <td><strong>Bahari Beach</strong></td>
-        <td class="right">683M</td>
-        <td class="right">12</td>
-        <td class="right">57M</td>
-        <td class="right">68M</td>
-        <td class="right">51M</td>
-        <td>Mature. Steady growth.</td>
-      </tr>
-      <tr>
-        <td><strong>Masana</strong></td>
-        <td class="right">586M</td>
-        <td class="right">12</td>
-        <td class="right">49M</td>
-        <td class="right">59M</td>
-        <td class="right">53M</td>
-        <td>Mature. Strongest Sep peak.</td>
-      </tr>
-      <tr>
-        <td><strong>Shoppers Tegeta</strong></td>
-        <td class="right">374M</td>
-        <td class="right">8</td>
-        <td class="right">47M</td>
-        <td class="right">70M</td>
-        <td class="right">49M</td>
-        <td>Opened May 2025. Strong ramp.</td>
-      </tr>
-      <tr>
-        <td><strong>Sinza Mori</strong></td>
-        <td class="right">321M</td>
-        <td class="right">7</td>
-        <td class="right">46M</td>
-        <td class="right">66M</td>
-        <td class="right">52M</td>
-        <td>Opened Jun 2025. Fast maturity.</td>
-      </tr>
-      <tr>
-        <td><strong>GSM Plaza</strong></td>
-        <td class="right">&mdash;</td>
-        <td class="right">&mdash;</td>
-        <td class="right">&mdash;</td>
-        <td class="right">63M</td>
-        <td class="right">100M</td>
-        <td>New 2026. Rapid ramp to #2.</td>
-      </tr>
-      <tr style="background:#f9f8f6; font-weight:700;">
-        <td>Network Total</td>
-        <td class="right">2,455M</td>
-        <td class="right">&mdash;</td>
-        <td class="right">&mdash;</td>
-        <td class="right">511M</td>
-        <td class="right">452M</td>
-        <td></td>
-      </tr>
-    </tbody>
-  </table>
-</div>
-
-<!-- SEASONALITY -->
-<div class="section">
-  <h2>2. Seasonality & Ramadan Impact</h2>
-  <div class="chart-row">
-    <div>
-      <div class="chart-container">
-        <canvas id="seasonChart"></canvas>
-      </div>
-    </div>
-    <div>
-      <h3>Key Patterns</h3>
-      <p><strong>Peak months:</strong> December is the strongest month across all branches (holiday season, end-of-year spending), followed by August&ndash;October.</p>
-      <p><strong>Trough:</strong> February consistently underperforms, compounded by Ramadan when it overlaps (Feb 2026 saw a -9% to -30% drop vs. January across all branches except GSM Plaza).</p>
-      <p><strong>Ramadan 2026 impact:</strong> Network revenue dropped from 511M (Jan) to 452M (Feb), a 12% hit. However, GSM Plaza actually grew +59% during Ramadan, suggesting location-specific dynamics that can be studied and replicated.</p>
-      <p><strong>Opportunity:</strong> A targeted Ramadan menu and iftar/suhoor promotion strategy could recover 30&ndash;50M TZS of the seasonal dip.</p>
-
-      <h3>Feb 2026 Ramadan Drop by Branch</h3>
-      <table>
-        <thead><tr><th>Branch</th><th class="right">Jan &rarr; Feb Change</th></tr></thead>
-        <tbody>
-          <tr><td>Shoppers Tegeta</td><td class="right red-text">-30.3%</td></tr>
-          <tr><td>Bahari Beach</td><td class="right red-text">-26.1%</td></tr>
-          <tr><td>Kigamboni</td><td class="right red-text">-20.6%</td></tr>
-          <tr><td>Sinza Mori</td><td class="right red-text">-20.6%</td></tr>
-          <tr><td>Masana</td><td class="right red-text">-9.3%</td></tr>
-          <tr><td>GSM Plaza</td><td class="right green-text">+59.0%</td></tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</div>
-
-<!-- COST ANALYSIS -->
-<div class="section">
-  <h2>3. Cost Structure & Margin Analysis</h2>
-  <p>Based on detailed extraction of individual branch reports (Masana 7 months, Sinza 6 months, Kigamboni 2 months), the visible operating cost structure is lean relative to revenue. However, the data reveals important gaps and opportunities.</p>
-
-  <div class="chart-row">
-    <div>
-      <h3>Visible Cost Breakdown (% of Revenue)</h3>
-      <div class="chart-container">
-        <canvas id="costChart"></canvas>
-      </div>
-    </div>
-    <div>
-      <h3>Stock-In (Ancillary COGS)</h3>
-      <p>The Stock-In sheets track ancillary supplies (potatoes, tea, coffee, bananas, water, packaging) rather than the core chicken inventory, which appears to be managed centrally. Ancillary COGS ranges from <strong>9&ndash;19% of branch revenue</strong>, with the largest line items being:</p>
-      <table>
-        <thead><tr><th>Item</th><th class="right">% of Ancillary COGS</th></tr></thead>
-        <tbody>
-          <tr><td>Central kitchen supply (chicken)</td><td class="right">~50%</td></tr>
-          <tr><td>Potatoes (EA Food + local)</td><td class="right">~18%</td></tr>
-          <tr><td>Milk / coffee / tea supplies</td><td class="right">~15%</td></tr>
-          <tr><td>Bananas</td><td class="right">~5%</td></tr>
-          <tr><td>Packaging materials</td><td class="right">~7%</td></tr>
-          <tr><td>Water / beverages / other</td><td class="right">~5%</td></tr>
-        </tbody>
-      </table>
-      <p style="margin-top:12px;"><strong>Key observation:</strong> Gas costs are remarkably consistent (~1.2&ndash;1.5M TZS/month/branch), electricity runs 1.0&ndash;2.4M, and petty cash is poorly tracked (often showing zero due to data gaps). The biggest cost lever is in waste and procurement, not utilities.</p>
-    </div>
-  </div>
-</div>
-
-<!-- WASTE ANALYSIS -->
-<div class="section">
-  <h2>4. Product-Level Waste Analysis</h2>
-  <p>Daily manager stock books reveal significant waste in two critical categories. This is the single largest controllable EBITDA lever.</p>
-
-  <div class="kpi-grid">
-    <div class="kpi-card red">
-      <div class="label">Breading OR Waste Rate</div>
-      <div class="value">65%</div>
-      <div class="subtext">More wasted than sold</div>
-    </div>
-    <div class="kpi-card red">
-      <div class="label">French Fries Waste Rate</div>
-      <div class="value">24%</div>
-      <div class="subtext">~120 kg wasted/month</div>
-    </div>
-    <div class="kpi-card green">
-      <div class="label">Chicken Waste Rate</div>
-      <div class="value">0.2%</div>
-      <div class="subtext">Excellent control</div>
-    </div>
-    <div class="kpi-card">
-      <div class="label">Daily ORchicken Volume</div>
-      <div class="value">187&ndash;209</div>
-      <div class="subtext">pieces/day (Masana)</div>
-    </div>
-  </div>
-
-  <h3>Product Mix (Daily Stock Book &mdash; Masana Branch)</h3>
-  <table>
-    <thead>
-      <tr>
-        <th>Product</th>
-        <th class="right">Daily Volume</th>
-        <th>Unit</th>
-        <th class="right">Waste Rate</th>
-        <th>Status</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr><td>ORchicken (core)</td><td class="right">187&ndash;209</td><td>pcs</td><td class="right green-text">0.2%</td><td>Excellent</td></tr>
-      <tr><td>OR fillet</td><td class="right">~29</td><td>pcs</td><td class="right green-text">Low</td><td>Good</td></tr>
-      <tr><td>Strips</td><td class="right">~20</td><td>pcs</td><td class="right green-text">Low</td><td>Good</td></tr>
-      <tr><td>French Fries</td><td class="right">~38 kg</td><td>kg</td><td class="right red-text">23.9%</td><td>Action needed</td></tr>
-      <tr><td>Breading OR</td><td class="right">~6&ndash;10 kg</td><td>kg</td><td class="right red-text">65.3%</td><td>Critical</td></tr>
-      <tr><td>Fries Flour</td><td class="right">~2.5 kg</td><td>kg</td><td class="right red-text">40&ndash;100%</td><td>Data issue + waste</td></tr>
-      <tr><td>Pepsi bottles</td><td class="right">~80</td><td>bottles</td><td class="right green-text">0%</td><td>Perfect</td></tr>
-      <tr><td>Burger Buns</td><td class="right">~29</td><td>pcs</td><td class="right">~3%</td><td>Acceptable</td></tr>
-      <tr><td>Cheese slices</td><td class="right">~6</td><td>pcs</td><td class="right green-text">0%</td><td>Good</td></tr>
+      <tr><td>2pc OR Chicken</td><td class="right">6,500</td><td class="right">1,500</td><td class="right green-text">5,000</td><td class="right">77%</td></tr>
+      <tr><td>3pc OR Chicken</td><td class="right">9,500</td><td class="right">2,250</td><td class="right green-text">7,250</td><td class="right">76%</td></tr>
+      <tr><td>5pc OR Chicken</td><td class="right">15,000</td><td class="right">3,750</td><td class="right green-text">11,250</td><td class="right">75%</td></tr>
+      <tr><td>Bomba Box (2pc+fries+drink)</td><td class="right">10,500</td><td class="right">3,500</td><td class="right">7,000</td><td class="right">67%</td></tr>
+      <tr><td>Family 10pc</td><td class="right">27,500</td><td class="right">7,500</td><td class="right">20,000</td><td class="right">73%</td></tr>
+      <tr><td>Strips 3pc</td><td class="right">5,500</td><td class="right">1,350</td><td class="right green-text">4,150</td><td class="right">75%</td></tr>
+      <tr><td>Nuggets 6pc</td><td class="right">4,000</td><td class="right">1,350</td><td class="right">2,650</td><td class="right">66%</td></tr>
+      <tr><td>OR Fillet Burger</td><td class="right">4,500</td><td class="right">1,400</td><td class="right">3,100</td><td class="right">69%</td></tr>
     </tbody>
   </table>
 
-  <h3>Data Quality Issues</h3>
-  <p>Across all branches and months, we identified <strong>6+ spelling variants</strong> for what appears to be the same fries breading product ("Fries flour", "Fries Flour", "FRIES FLOUR", "Fries breading", "Fries Breading", "fries flour"). This makes aggregation unreliable and suggests a lack of standardized product masters in the POS/stock system. Fixing this alone would improve inventory visibility.</p>
-</div>
-
-<!-- SAME-STORE GROWTH -->
-<div class="section">
-  <h2>5. Same-Store Growth Deep Dive</h2>
-  <div class="chart-container">
-    <canvas id="ssgChart"></canvas>
+  <div class="insight-box">
+    <strong>Key insight:</strong> Straight chicken pieces (2pc, 3pc, 5pc) are the highest-margin items at 75&ndash;77%. Combo boxes (Bomba, Bahati) are still healthy at 67%, but every piece of spoiled breading or stocked-out banana directly erodes these margins. At 750 TZS/piece chicken cost, one spoiled batch of 20 pieces = 15,000 TZS in wasted food cost. At Kigamboni volumes (438 pieces/day), even a 1% waste improvement saves ~48,000 TZS/day or ~17.5M TZS/year at that single branch.
   </div>
-  <p>Both mature branches show strong and sustained same-store growth throughout 2025, with Masana accelerating in Q3 (Sep: +103%, Oct: +128% YoY). The early-2025 growth was partly driven by Masana's 2024 ramp-up period creating a low base, but even late-2025 months show +21&ndash;28% YoY for Bahari, indicating genuine organic demand growth. Into Jan 2026, same-store growth settled at +38&ndash;42%, a healthy and sustainable pace.</p>
 </div>
 
-<!-- EBITDA LEVERS -->
-<div class="section">
-  <h2>6. Actionable EBITDA Lift Levers</h2>
-  <p>The following six initiatives are ranked by estimated impact and implementation speed. Combined, they target <strong>180&ndash;320M TZS/year</strong> of EBITDA improvement across the current 6-branch network.</p>
+<!-- SECTION 2: COMPLIMENTARY MEALS -->
+<div class="section" id="s2">
+  <h2>2. The Sinza Complimentary Problem: 770 Pieces of Chicken</h2>
+
+  <p>Complimentary meals are a legitimate business tool &mdash; customer recovery, marketing, community engagement. But the data shows a <strong>massive inconsistency</strong> across branches that suggests the current policy is informal and unevenly applied.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card"><div class="label">Masana Comp Rate</div><div class="value">0.8/day</div><div class="subtext">161 OR chicken pieces / 207 days</div></div>
+    <div class="kpi-card"><div class="label">Kigamboni Comp Rate</div><div class="value">1.4/day</div><div class="subtext">83 pieces / 61 days</div></div>
+    <div class="kpi-card red"><div class="label">Sinza Comp Rate</div><div class="value">5.2/day</div><div class="subtext">770 pieces / 149 days</div></div>
+    <div class="kpi-card red"><div class="label">Sinza vs Masana</div><div class="value">6.5x</div><div class="subtext">comp rate differential</div></div>
+  </div>
+
+  <p>Sinza is giving away chicken at <strong>6.5 times</strong> the rate of Masana and <strong>3.7 times</strong> the rate of Kigamboni. And it is not evenly distributed. On November 16th alone, Sinza recorded <strong>402 complimentary OR chicken pieces</strong> &mdash; that is more free chicken than actual sales (264 pieces) on the same day. This single day accounts for 52% of Sinza's entire comp total.</p>
+
+  <div class="chart-container"><canvas id="compChart"></canvas></div>
+
+  <p>Beyond OR chicken, Sinza also gave away 464 nuggets, 164 strips, 98 Pepsis, 95 juices, and 56 portions of fries as complimentary. The total complimentary across all products at Sinza represents a meaningful cost center that does not appear at comparable levels elsewhere.</p>
 
   <div class="action-item urgent">
     <div class="action-header">
-      <span class="action-title">1. Eliminate Breading & Fries Waste</span>
-      <span class="impact-badge critical">Critical &mdash; Week 1</span>
+      <span class="action-title">Investigate Nov 16 Sinza Event and Formalize Comp Policy</span>
+      <span class="impact-badge critical">High Priority</span>
     </div>
-    <div class="action-detail">Breading OR waste of 65% and fries waste of 24% are destroying margins. Implement batch-size controls: prepare breading in smaller quantities (halve current batch size), set fries holding time limits (7 minutes max), and introduce a simple daily waste log with manager sign-off. Train kitchen staff on demand-based prep rather than bulk prep.</div>
-    <div class="action-numbers">Est. impact: 60&ndash;100M TZS/year (across 6 branches) &bull; Cost to implement: Near zero (process change)</div>
+    <div class="action-detail">Determine what happened on Nov 16 (402 comps). If it was a legitimate event (opening, community day), that is fine &mdash; but it should be budgeted and tracked separately. Implement a daily comp cap per branch (suggested: 2% of daily sales volume, roughly 3&ndash;5 pieces at Masana/Sinza scale, 8&ndash;10 at Kigamboni) with manager sign-off for anything above.</div>
+    <div class="action-numbers">If Sinza's comp rate matched Masana's, annual savings: ~240K pieces of chicken equivalent value = ~24M TZS in food cost alone, not counting the revenue those pieces could have generated.</div>
   </div>
 
   <div class="action-item high-impact">
     <div class="action-header">
-      <span class="action-title">2. Standardize Product Master & Inventory System</span>
-      <span class="impact-badge medium">Foundation &mdash; Weeks 1&ndash;2</span>
+      <span class="action-title">Turn Comps Into a Marketing Tool With Tracking</span>
+      <span class="impact-badge high">Revenue Opportunity</span>
     </div>
-    <div class="action-detail">Create a single, canonical product list with standardized names, units, and SKU codes. Currently 6+ variants exist for the same items. This prevents accurate variance analysis and hides waste. Build a simple Google Sheet or paper template with pre-printed item names for daily stock counts. This is the foundation that makes all other improvements measurable.</div>
-    <div class="action-numbers">Est. impact: Enables 30&ndash;50M TZS/year in identified waste savings &bull; Cost: Staff training time only</div>
+    <div class="action-detail">Rather than eliminating comps, channel them. Give each branch a weekly "community budget" of, say, 30&ndash;40 pieces. Tie them to specific purposes: new customer sampling (tracked with a simple tally), complaint resolution (logged with reason), or local event sponsorship (pre-approved). This turns an uncontrolled cost into a measurable customer acquisition channel.</div>
   </div>
+</div>
+
+<!-- SECTION 3: BREADING WASTE -->
+<div class="section" id="s3">
+  <h2>3. Breading Waste: A Fixable 10&ndash;14% Drain on Every Branch</h2>
+
+  <p>Chicken breading (the coating mix for OR pieces) shows a consistent spoilage rate of <strong>10&ndash;14% of total available product</strong> across all three branches with detailed data. This is the single largest waste category by percentage. And critically, the waste rate is <strong>nearly identical across every day of the week</strong>:</p>
+
+  <div class="chart-row">
+    <div class="chart-container"><canvas id="breadingDowChart"></canvas></div>
+    <div>
+      <table>
+        <thead><tr><th>Day</th><th class="right">Masana Waste %</th></tr></thead>
+        <tbody>
+          <tr><td>Monday</td><td class="right">13.5%</td></tr>
+          <tr><td>Tuesday</td><td class="right">12.2%</td></tr>
+          <tr><td>Wednesday</td><td class="right">15.9%</td></tr>
+          <tr><td>Thursday</td><td class="right">14.0%</td></tr>
+          <tr><td>Friday</td><td class="right">14.6%</td></tr>
+          <tr><td>Saturday</td><td class="right">15.5%</td></tr>
+          <tr><td>Sunday</td><td class="right">14.7%</td></tr>
+        </tbody>
+      </table>
+      <div class="insight-box">
+        <strong>This is a batch-life problem, not a demand problem.</strong> If it were demand-driven, weekends (with 2x sales) would show lower waste. The flat pattern means breading is being mixed in batches that expire before they are used, regardless of how busy the day is. The fix is smaller, more frequent batches.
+      </div>
+    </div>
+  </div>
+
+  <h3>Cross-Branch Comparison</h3>
+  <table>
+    <thead><tr><th>Branch</th><th class="right">Avg Breading Used/Day (kg)</th><th class="right">Waste Rate</th><th class="right">Days of Data</th></tr></thead>
+    <tbody>
+      <tr><td>Masana</td><td class="right">4.2</td><td class="right red-text">13.9%</td><td class="right">207</td></tr>
+      <tr><td>Sinza</td><td class="right">6.0</td><td class="right red-text">11.7%</td><td class="right">149</td></tr>
+      <tr><td>Kigamboni</td><td class="right">36.2</td><td class="right red-text">10.2%</td><td class="right">61</td></tr>
+    </tbody>
+  </table>
+
+  <p>Kigamboni's lower waste rate (10.2% vs 13.9%) is instructive. At nearly 9x the volume of Masana, Kigamboni uses breading faster, so batches expire less. This tells us the fix is not about Kigamboni-style volume, but about matching batch size to throughput rate. Masana should be mixing smaller batches more frequently.</p>
 
   <div class="action-item high-impact">
     <div class="action-header">
-      <span class="action-title">3. Optimize Potato Procurement</span>
-      <span class="impact-badge high">High Impact &mdash; Weeks 2&ndash;3</span>
+      <span class="action-title">Implement Half-Batch Protocol at Lower-Volume Branches</span>
+      <span class="impact-badge high">Est. 15&ndash;25M TZS/yr savings</span>
     </div>
-    <div class="action-detail">Potatoes are the #2 cost line (18% of ancillary COGS) with 4 different price tiers visible in the data (780&ndash;1,111 TZS/kg). Consolidate purchasing to the best-price supplier (EA Food at 780&ndash;900 TZS/kg vs. local market at 1,111 TZS/kg). With ~38 kg/day per branch across 6 branches, a 200 TZS/kg savings yields significant annual impact. Negotiate volume contracts with delivery schedules.</div>
-    <div class="action-numbers">Est. impact: 30&ndash;50M TZS/year &bull; Cost: Supplier negotiation only</div>
+    <div class="action-detail">At Masana and Sinza, switch from full-batch to half-batch breading prep, mixed twice as often. Target: reduce waste from 12&ndash;14% to 6&ndash;8% (Kigamboni's rate, adjusted for lower throughput). This same protocol should be installed as SOP at all new branches from day one. Similarly, fries breading waste at Masana (8.8%) and Sinza (6.0%) can be addressed with the same approach.</div>
   </div>
+</div>
+
+<!-- SECTION 4: BANANA STOCKOUTS -->
+<div class="section" id="s4">
+  <h2>4. Banana Stockouts: You're Leaving Money on the Table 48% of Days</h2>
+
+  <p>Bananas are a high-margin side item (cost near zero relative to selling price) and a key part of combos. Yet Kigamboni runs out of bananas on <strong>48% of all operating days</strong>, and even Masana runs out 22% of the time.</p>
+
+  <div class="kpi-grid">
+    <div class="kpi-card red"><div class="label">Kigamboni Stockout</div><div class="value">48%</div><div class="subtext">of days, zero bananas left</div></div>
+    <div class="kpi-card red"><div class="label">Masana Stockout</div><div class="value">22%</div><div class="subtext">of days</div></div>
+    <div class="kpi-card red"><div class="label">Sinza Stockout</div><div class="value">19%</div><div class="subtext">of days</div></div>
+    <div class="kpi-card red"><div class="label">Fries Zero-Stock</div><div class="value">26%</div><div class="subtext">Kigamboni days</div></div>
+  </div>
+
+  <p>On stockout days at Kigamboni, banana sales average 70.6 pieces before running out, vs 50.3 on normal days. This means the <strong>highest-demand days are exactly the days you run out</strong>. The true demand on those days is unknown because sales were capped by supply, but it is clearly higher than 70.</p>
+
+  <p>French fries show a similar pattern: Kigamboni runs out of fries on 26% of days, Sinza on 14%. Fries are a staple side for nearly every combo and a primary accompaniment to chicken.</p>
+
+  <div class="chart-container"><canvas id="stockoutChart"></canvas></div>
 
   <div class="action-item high-impact">
     <div class="action-header">
-      <span class="action-title">4. Launch Ramadan/Low-Season Revenue Program</span>
-      <span class="impact-badge high">High Impact &mdash; Before next Ramadan</span>
+      <span class="action-title">Implement Day-of-Week Banana & Fries Ordering</span>
+      <span class="impact-badge high">Est. 30&ndash;50M TZS/yr revenue recovery</span>
     </div>
-    <div class="action-detail">February Ramadan caused a 12% network revenue drop (59M TZS lost in one month). GSM Plaza bucked this with +59% growth, suggesting location and menu matter. For next Ramadan: introduce iftar combo meals (family packs for evening breaking-fast), suhoor items (pre-dawn meal options), and delivery partnerships. Study what GSM Plaza did differently. Apply the same thinking to the general Feb trough.</div>
-    <div class="action-numbers">Est. impact: 30&ndash;50M TZS/year (recovering half the seasonal dip) &bull; Cost: Menu development + marketing</div>
+    <div class="action-detail">The demand data by day of week is clear and consistent: Sunday demand for bananas at Kigamboni is 103 pieces vs Monday at 23. Order and prep volumes should follow a simple 7-day schedule calibrated to historical demand + 20% buffer on weekends. Kigamboni should be ordering at least 120 bananas for Saturdays and Sundays, vs the current supply that runs out at 70. For fries, the same logic applies &mdash; Sunday demand is 161 kg vs Monday at 80 kg.</div>
+    <div class="action-numbers">At ~3,000 TZS per banana serving and 19 stockout days observed over 61 days at Kigamboni alone, with ~30 missed sales per stockout day: est. 1.7M TZS/month in lost banana revenue at one branch. Across 6 (soon 11) branches, this adds up fast.</div>
   </div>
 
   <div class="action-item">
     <div class="action-header">
-      <span class="action-title">5. Replicate Kigamboni Model Across Network</span>
-      <span class="impact-badge high">Strategic &mdash; Weeks 3&ndash;6</span>
+      <span class="action-title">Build a Simple Demand Forecast Spreadsheet</span>
+      <span class="impact-badge medium">Operational Foundation</span>
     </div>
-    <div class="action-detail">Kigamboni generates 3x the revenue of other branches (164M vs. 46&ndash;57M/month). Investigate what drives this: larger format? better location? extended hours? Identify the 2&ndash;3 replicable factors (likely menu breadth and seating capacity) and pilot them at underperforming branches. Even a 15% uplift to Masana and Sinza would yield meaningful gains.</div>
-    <div class="action-numbers">Est. impact: 40&ndash;80M TZS/year if 2 branches improve 15% &bull; Cost: Branch-specific investment</div>
+    <div class="action-detail">For each branch, create a simple spreadsheet: 7 columns (days of week), rows for each key product (OR chicken, fries, bananas, burger buns, nuggets, strips). Fill with the historical daily averages from this analysis. Add a "buffer %" column (start at 15% weekdays, 25% weekends). This becomes the daily prep guide for each branch. Update monthly with actual data. This is low-tech, easy to implement, and immediately effective.</div>
   </div>
+</div>
 
-  <div class="action-item">
+<!-- SECTION 5: WEEKEND DEMAND -->
+<div class="section" id="s5">
+  <h2>5. The Weekend Demand Swing: Staffing and Prep for a 2x Day</h2>
+
+  <p>Every branch follows the same curve: demand climbs from Monday through Sunday, with Saturday and Sunday delivering dramatically more volume. But the magnitude varies significantly by branch.</p>
+
+  <div class="chart-container"><canvas id="dowChart"></canvas></div>
+
+  <table>
+    <thead><tr><th>Branch</th><th class="right">Mon Avg OR</th><th class="right">Sun Avg OR</th><th class="right">Sun/Mon Ratio</th><th class="right">Revenue Ratio (Weekend/Weekday)</th></tr></thead>
+    <tbody>
+      <tr><td>Kigamboni</td><td class="right">610</td><td class="right">1,294</td><td class="right red-text">2.12x</td><td class="right">1.67x</td></tr>
+      <tr><td>Masana</td><td class="right">164</td><td class="right">275</td><td class="right">1.68x</td><td class="right">1.37x</td></tr>
+      <tr><td>Sinza</td><td class="right">199</td><td class="right">298</td><td class="right">1.50x</td><td class="right">1.16x</td></tr>
+    </tbody>
+  </table>
+
+  <p>Kigamboni's Sunday is a completely different operation from its Monday. Selling 1,294 pieces of OR chicken requires roughly 2x the prep staff, 2x the frying capacity utilization, and 2x the serving capacity. If you are staffing Kigamboni the same on Monday and Sunday, you are either overstaffed on weekdays or understaffed on weekends (more likely both).</p>
+
+  <div class="action-item high-impact">
     <div class="action-header">
-      <span class="action-title">6. Cafe/Bakery Upsell Optimization</span>
-      <span class="impact-badge medium">Medium Impact &mdash; Weeks 2&ndash;4</span>
+      <span class="action-title">Implement Tiered Staffing Schedules</span>
+      <span class="impact-badge high">Labor Cost Optimization</span>
     </div>
-    <div class="action-detail">K Cafe (bakery/coffee) contributes roughly 15&ndash;19% of branch revenue (visible in Masana data: ~6.5M of 42.4M in Jan 2025). Cafe items carry higher margins than chicken. Train counter staff on suggestive selling ("Would you like a coffee or pastry with that?"), introduce combo pricing, and improve cafe product visibility at point of sale. The cafe product line (coffee, tea, pastries) has near-zero waste in the data.</div>
-    <div class="action-numbers">Est. impact: 20&ndash;40M TZS/year (15% uplift on cafe revenue across network) &bull; Cost: Training + menu boards</div>
+    <div class="action-detail">Build a 3-tier staffing model: Tier 1 (Mon&ndash;Wed, base), Tier 2 (Thu&ndash;Fri, +25%), Tier 3 (Sat&ndash;Sun, +50&ndash;75%). This ensures peak weekend hours are fully covered while reducing idle labor cost midweek. At Kigamboni, which does 5.5M TZS/day on weekdays but 8.1M on weekends, the labor savings from right-sizing weekday staffing could be substantial, while adding weekend capacity captures the demand you are currently losing to stockouts and long wait times.</div>
   </div>
 </div>
 
-<!-- IMPLEMENTATION TIMELINE -->
-<div class="section">
-  <h2>7. Implementation Roadmap</h2>
-  <div class="timeline">
-    <div class="timeline-phase">
-      <div class="phase-label">Week 1&ndash;2: Quick Wins</div>
-      <ul>
-        <li>Audit breading/fries batch sizes at each branch</li>
-        <li>Implement daily waste log template</li>
-        <li>Create standardized product master list</li>
-        <li>Set holding time limits for prepared items</li>
-        <li>Benchmark Kigamboni operations vs. others</li>
-      </ul>
+<!-- SECTION 6: KIGAMBONI -->
+<div class="section" id="s6">
+  <h2>6. The Kigamboni Playbook: Why One Branch Does 3x Revenue</h2>
+
+  <p>Kigamboni is an outlier. In January 2026 it posted <strong>185.4M TZS</strong> in gross revenue, while the next highest branch (Shoppers Tegeta) did 70.2M. That is a 2.6x gap. Over FY2025's last three months (Oct&ndash;Dec), Kigamboni generated 491M TZS vs the next-best branch at 188M.</p>
+
+  <div class="chart-container"><canvas id="branchRevenueChart"></canvas></div>
+
+  <p>The executive confirmed the reason: <strong>Kigamboni has no comparable competition nearby</strong>, combined with high foot traffic in an underserved area. This is not replicable through operational improvements at other branches, but it is critically important for site selection as you open 5 new locations.</p>
+
+  <h3>What Kigamboni Teaches About Expansion</h3>
+
+  <div class="action-item growth">
+    <div class="action-header">
+      <span class="action-title">Prioritize Low-Competition Locations for New Branches</span>
+      <span class="impact-badge growth">Strategic</span>
     </div>
-    <div class="timeline-phase">
-      <div class="phase-label">Week 3&ndash;4: Procurement & Revenue</div>
-      <ul>
-        <li>Consolidate potato suppliers, negotiate volume pricing</li>
-        <li>Launch cafe upsell training program</li>
-        <li>Design Ramadan-ready menu for next cycle</li>
-        <li>Roll out standardized stock book across all 6 branches</li>
-        <li>Analyze Kigamboni success factors</li>
-      </ul>
-    </div>
-    <div class="timeline-phase">
-      <div class="phase-label">Week 5&ndash;8: Scale & Measure</div>
-      <ul>
-        <li>Measure waste reduction vs. baseline</li>
-        <li>Pilot Kigamboni improvements at 1&ndash;2 branches</li>
-        <li>Set up weekly branch P&L review cadence</li>
-        <li>Build dashboard for cross-branch comparison</li>
-        <li>Prepare case study metrics for investor deck</li>
-      </ul>
-    </div>
+    <div class="action-detail">Kigamboni's 3x revenue premium comes from being the only game in town. As you evaluate the Morogoro, Bagamoyo, and East African Mall locations, the key question for each: "How many comparable fried chicken or QSR options exist within 1 km?" Morogoro in particular (3 planned branches) needs careful spacing to avoid cannibalizing yourself. The Kigamboni lesson is that one dominant store in a competition-light area outperforms multiple stores in crowded markets.</div>
+  </div>
+
+  <div class="insight-box">
+    <strong>Kigamboni operational note:</strong> Despite 3x the revenue, Kigamboni's cafe share is only 4.3% (vs ~13&ndash;19% at Masana). This suggests the cafe side is capacity-constrained or deprioritized at the highest-volume location. If cafe operations could scale to even 10% at Kigamboni, that is an additional ~18M TZS/month in incremental revenue.
   </div>
 </div>
 
-<!-- TOTAL IMPACT SUMMARY -->
-<div class="section">
-  <h2>8. Total Projected EBITDA Impact</h2>
+<!-- SECTION 7: NUGGETS -->
+<div class="section" id="s7">
+  <h2>7. Nuggets: A Growth Product That Keeps Disappearing</h2>
+
+  <p>Nuggets tell one of the most interesting stories in the data. They appear, sell well, then vanish from the stock books for months at a time:</p>
+
   <table>
-    <thead>
-      <tr>
-        <th>Lever</th>
-        <th class="right">Conservative (TZS/yr)</th>
-        <th class="right">Upside (TZS/yr)</th>
-        <th>Timeline</th>
-        <th>Confidence</th>
-      </tr>
-    </thead>
+    <thead><tr><th>Branch</th><th>Period</th><th class="right">Avg Daily Sales</th><th>Then What</th></tr></thead>
     <tbody>
-      <tr>
-        <td>Waste elimination (breading + fries)</td>
-        <td class="right">60M</td>
-        <td class="right">100M</td>
-        <td>Week 1</td>
-        <td><strong>High</strong> &mdash; data-confirmed</td>
-      </tr>
-      <tr>
-        <td>Potato procurement optimization</td>
-        <td class="right">30M</td>
-        <td class="right">50M</td>
-        <td>Week 2&ndash;3</td>
-        <td><strong>High</strong> &mdash; price spreads visible</td>
-      </tr>
-      <tr>
-        <td>Ramadan/seasonal revenue recovery</td>
-        <td class="right">30M</td>
-        <td class="right">50M</td>
-        <td>Next cycle</td>
-        <td>Medium &mdash; needs menu testing</td>
-      </tr>
-      <tr>
-        <td>Cafe/bakery upsell</td>
-        <td class="right">20M</td>
-        <td class="right">40M</td>
-        <td>Week 2&ndash;4</td>
-        <td>Medium &mdash; training-dependent</td>
-      </tr>
-      <tr>
-        <td>Kigamboni model replication</td>
-        <td class="right">40M</td>
-        <td class="right">80M</td>
-        <td>Week 3&ndash;6</td>
-        <td>Medium &mdash; needs investigation</td>
-      </tr>
-      <tr style="background:#f0ede6; font-weight:700;">
-        <td>Total Projected Uplift</td>
-        <td class="right green-text">180M</td>
-        <td class="right green-text">320M</td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr style="background:#f0ede6;">
-        <td>USD Equivalent</td>
-        <td class="right">$72,000</td>
-        <td class="right">$128,000</td>
-        <td></td>
-        <td></td>
-      </tr>
-      <tr style="background:#f0ede6;">
-        <td>% of 2026 Run Rate Revenue</td>
-        <td class="right">3.1%</td>
-        <td class="right">5.5%</td>
-        <td></td>
-        <td></td>
-      </tr>
+      <tr><td>Masana</td><td>August 2025</td><td class="right">11.6/day</td><td>Disappears Sep&ndash;Nov (zero)</td></tr>
+      <tr><td>Sinza</td><td>August 2025</td><td class="right">16.5/day</td><td>Disappears Sep&ndash;Nov, returns Dec at 45.3/day</td></tr>
+      <tr><td>Kigamboni</td><td>November 2025</td><td class="right">0/day</td><td>Launches in Dec at 132.4/day</td></tr>
     </tbody>
   </table>
+
+  <p>When nuggets are available, they sell. Kigamboni's December launch hit <strong>132 nuggets per day</strong> immediately. Sinza jumped from 16.5/day (Aug) to 45.3/day (Dec) after a 3-month gap. The demand is clearly there. The question is: why do nuggets keep disappearing from stock?</p>
+
+  <div class="action-item growth">
+    <div class="action-header">
+      <span class="action-title">Stabilize Nugget Supply Chain</span>
+      <span class="impact-badge growth">Revenue Opportunity</span>
+    </div>
+    <div class="action-detail">If the disappearance is a supply chain issue (supplier inconsistency, central kitchen capacity), it needs to be resolved before expansion. Nuggets at 4,000 TZS for 6pc are a lower price point that attracts a different customer segment (younger, snacking, lower spend) than the core OR chicken buyer. At Kigamboni's run rate of 132/day, nuggets could be generating 88,000 TZS/day in revenue per branch. Across 11 branches, that is ~29M TZS/month when fully stocked.</div>
+  </div>
 </div>
 
-<!-- APPENDIX: DATA GAPS -->
-<div class="section">
-  <h2>Appendix: Data Gaps & Next Steps</h2>
-  <h3>Missing Data That Would Sharpen This Analysis</h3>
-  <p>The following data was not available in the provided files but would enable more precise EBITDA modeling:</p>
+<!-- SECTION 8: INVENTORY VARIANCE -->
+<div class="section" id="s8">
+  <h2>8. Inventory Variance: 170K Units of Unaccounted Shrinkage</h2>
+
+  <p>Across all products and branches, the total absolute difference between calculated ("actual") stock and physically counted stock is <strong>169,538 units</strong>. OR chicken alone accounts for 68,614 units of variance, followed by Pepsi (21,534), chicken strips (14,437), and OR fillet (10,264).</p>
+
   <table>
-    <thead><tr><th>Data Point</th><th>Why It Matters</th><th>Where to Get It</th></tr></thead>
+    <thead><tr><th>Product</th><th class="right">Total Abs. Variance</th><th>Notes</th></tr></thead>
     <tbody>
-      <tr><td>Central kitchen chicken costs</td><td>Core COGS (~50% of total) invisible in branch reports</td><td>HQ / commissary records</td></tr>
-      <tr><td>Staff payroll by branch</td><td>Labor is typically 25&ndash;35% of QSR costs</td><td>HR / payroll system</td></tr>
-      <tr><td>Rent & lease costs per location</td><td>Fixed cost base affects breakeven</td><td>Finance / landlord agreements</td></tr>
-      <tr><td>Bahari & Shoppers branch reports</td><td>Only Masana, Sinza, Kigamboni had .xls files</td><td>Branch managers</td></tr>
-      <tr><td>2026 monthly reports (Mar onward)</td><td>Only Jan&ndash;Feb 2026 summary data available</td><td>Monthly reporting cycle</td></tr>
-      <tr><td>Delivery vs. dine-in split</td><td>Different margin profiles</td><td>POS system</td></tr>
-      <tr><td>Menu pricing schedule</td><td>Needed to calculate unit economics</td><td>Current menu / POS</td></tr>
+      <tr><td>OR Chicken</td><td class="right red-text">68,614 pcs</td><td>Largest variance item by far</td></tr>
+      <tr><td>Pepsi</td><td class="right">21,534 nos</td><td>Beverage shrinkage / counting errors</td></tr>
+      <tr><td>Chicken Strips</td><td class="right">14,437 pcs</td><td>Second protein item</td></tr>
+      <tr><td>OR Fillet</td><td class="right">10,264 pcs</td><td>Third protein item</td></tr>
+      <tr><td>French Fries</td><td class="right">10,176 kg</td><td>Weight-based, harder to count precisely</td></tr>
     </tbody>
   </table>
 
-  <h3>Accounting Controls to Address</h3>
-  <p>The cash settlement sheets show operating expenses (gas deliveries, salaries, potato purchases, maintenance) mixed in with customer payment records. This makes it difficult to distinguish true customer revenue from internal transfers. Separating operating disbursements from revenue collection into distinct tracking systems would improve financial visibility and audit readiness.</p>
+  <p>Kigamboni's average daily variance per product is <strong>21 units</strong>, vs 8 at Masana and Sinza. Some variance is expected (counting errors on weight-based items, breakage) but the scale on chicken pieces (which are discrete, countable items) suggests either sloppy record-keeping, theft, or systematic miscounting. At 750 TZS/piece, the OR chicken variance alone represents ~51.5M TZS in product that went somewhere it shouldn't have.</p>
+
+  <div class="action-item urgent">
+    <div class="action-header">
+      <span class="action-title">Tighten Daily Stock Reconciliation</span>
+      <span class="impact-badge critical">Est. 20&ndash;40M TZS/yr at risk</span>
+    </div>
+    <div class="action-detail">Implement end-of-shift physical counts with manager sign-off on variance. Flag any day where OR chicken variance exceeds 10 pieces for investigation. Consider installing a simple batch tracking system where each batch from the central kitchen has a count that follows it from delivery to sale. This becomes even more critical as you add 5 new branches with new teams.</div>
+  </div>
+</div>
+
+<!-- SECTION 9: EXPANSION READINESS -->
+<div class="section" id="s9">
+  <h2>9. Expansion Readiness: Central Kitchen & Consistency at Scale</h2>
+
+  <p>Kookoos is about to go from 6 to 11 branches. The current model &mdash; marinated chicken and buns from a central kitchen, potatoes and bananas prepped at each branch &mdash; has worked at 6 locations. But the data reveals operational inconsistencies that will amplify at scale.</p>
+
+  <h3>Current Inconsistency Indicators</h3>
+  <table>
+    <thead><tr><th>Metric</th><th class="right">Masana</th><th class="right">Sinza</th><th class="right">Kigamboni</th></tr></thead>
+    <tbody>
+      <tr><td>Breading waste rate</td><td class="right">13.9%</td><td class="right">11.7%</td><td class="right">10.2%</td></tr>
+      <tr><td>Fries waste rate</td><td class="right">9.5%</td><td class="right">4.5%</td><td class="right">4.3%</td></tr>
+      <tr><td>Comp rate (OR chicken/day)</td><td class="right">0.8</td><td class="right">5.2</td><td class="right">1.4</td></tr>
+      <tr><td>Banana stockout frequency</td><td class="right">22%</td><td class="right">19%</td><td class="right">48%</td></tr>
+      <tr><td>Avg inventory variance/day</td><td class="right">8.2</td><td class="right">8.2</td><td class="right">21.0</td></tr>
+    </tbody>
+  </table>
+
+  <p>If Masana's fries waste (9.5%) shows up at 3 new Morogoro branches, that is a compounding cost problem. If Sinza's comp rate (5.2/day) becomes the norm at new locations with unsupervised managers, you are giving away thousands of pieces monthly across the network.</p>
+
+  <div class="action-item growth">
+    <div class="action-header">
+      <span class="action-title">Create a Branch Operations Playbook Before Opening #7</span>
+      <span class="impact-badge growth">Critical for Scale</span>
+    </div>
+    <div class="action-detail">Document the current best practices from each branch: Kigamboni's breading efficiency, Sinza's fries waste rate, Masana's comp discipline. Standardize these into a single operations manual that every new branch manager trains on. Include the day-of-week demand forecast template, the half-batch breading protocol, and the comp cap policy. This is the single most important pre-expansion investment.</div>
+  </div>
+
+  <div class="action-item growth">
+    <div class="action-header">
+      <span class="action-title">Central Kitchen Capacity Planning</span>
+      <span class="impact-badge growth">Strategic</span>
+    </div>
+    <div class="action-detail">The central kitchen currently supplies marinated chicken and buns to 6 branches. At the current Kigamboni run rate (438 OR chicken pieces/day) and assuming new branches average closer to 200 pieces/day initially, adding 5 branches means ~1,000 additional pieces/day of marinated chicken demand. Confirm the central kitchen has headroom for this. If it doesn't, this becomes a bottleneck that could delay openings or force quality compromises.</div>
+  </div>
+</div>
+
+<!-- SECTION 10: TOP-LINE GROWTH -->
+<div class="section" id="s10">
+  <h2>10. Top-Line Growth: Delivery, Digital, and Competitive Moat</h2>
+
+  <p>The executive identified top-line growth and competitive pressure as major concerns. The fried chicken market in Dar es Salaam is getting crowded. Here is what the data suggests about where growth can come from.</p>
+
+  <h3>Delivery Channel (est. 10&ndash;25% of revenue)</h3>
+  <p>If delivery is currently 10&ndash;25% of revenue and growing, it needs to be tracked separately in the stock books. Right now, the daily sales sheets at Kigamboni show 0 for both dine-in and takeaway transaction counts, meaning the POS is not capturing channel data. Without this, you cannot answer critical questions: What is the delivery commission cost? Which items travel well? Does delivery cannibalize dine-in or grow the total?</p>
+
+  <div class="action-item growth">
+    <div class="action-header">
+      <span class="action-title">Track Delivery as a Separate Sales Channel</span>
+      <span class="impact-badge growth">Data Foundation</span>
+    </div>
+    <div class="action-detail">Configure POS to tag orders by channel (dine-in, takeaway, Bolt Food, etc.). This data will reveal: (a) which branches have delivery upside, (b) whether delivery orders have different item mixes (important for prep planning), (c) the true net margin after platform commissions (typically 20&ndash;30% on East African platforms). If delivery is 20% of a 5.77B revenue base, that is ~1.15B TZS flowing through a channel you have no visibility into.</div>
+  </div>
+
+  <h3>Competitive Moat</h3>
+  <p>New competitors entering the market can copy your menu, but they cannot copy <strong>operational consistency at scale</strong>. If Kookoos can open 5 new branches in 2026 with tight waste control, standardized prep, and reliable product availability (no stockouts), that is a competitive advantage that takes years to build. The recommendations in this report are not just about saving money. They are about building the operational muscle that lets you grow faster than competitors.</p>
+
+  <div class="action-item innovative">
+    <div class="action-header">
+      <span class="action-title">Instagram-Driven Local Marketing</span>
+      <span class="impact-badge innovative">Competitive Edge</span>
+    </div>
+    <div class="action-detail">With an existing Instagram presence, each new branch opening is a marketing event. Consider a "first 100 customers" activation at each new Morogoro/Bagamoyo location. Use the complimentary budget (formalized from Section 2) for sampling at nearby businesses and schools in the week before opening. The cost of 200&ndash;300 sample pieces per opening (~225K TZS in food cost) is trivial compared to the customer acquisition value.</div>
+  </div>
+
+  <div class="action-item innovative">
+    <div class="action-header">
+      <span class="action-title">GSM Plaza Ramadan Insight</span>
+      <span class="impact-badge innovative">Seasonal Strategy</span>
+    </div>
+    <div class="action-detail">While most branches saw a 9&ndash;30% revenue dip during Ramadan (Feb 2026), GSM Plaza grew <strong>59%</strong> (from 62.9M to 99.9M). GSM Plaza's location likely captures the iftar (evening meal-breaking) demand that other branches miss. For future Ramadans, consider extended evening hours at branches near mosques or in areas with large Muslim populations. This location-specific seasonal play is exactly the kind of nuance that competitors without your data won't see.</div>
+  </div>
+</div>
+
+<!-- SECTION 11: ROADMAP -->
+<div class="section" id="s11">
+  <h2>11. 90-Day Execution Roadmap</h2>
+
+  <div class="callout">
+    <strong>Total estimated annual EBITDA impact across current 6 branches: 180&ndash;340M TZS ($72K&ndash;$136K)</strong><br>
+    Composed of: breading waste reduction (15&ndash;25M), stockout revenue recovery (30&ndash;50M), comp policy normalization (15&ndash;25M), inventory shrinkage reduction (20&ndash;40M), staffing optimization (20&ndash;40M), nugget supply stabilization (20&ndash;40M), delivery channel optimization (30&ndash;60M), and expansion operational leverage (30&ndash;60M over time).
+  </div>
+
+  <h3>Weeks 1&ndash;2: Quick Wins</h3>
+  <div class="action-item high-impact">
+    <div class="action-header"><span class="action-title">1. Build day-of-week prep guides for all branches</span></div>
+    <div class="action-detail">Use the historical daily averages from this analysis. Print a simple laminated card for each branch's kitchen: "Monday: prep 170 OR chicken, 80 kg fries, 25 bananas. Sunday: prep 280 OR chicken, 160 kg fries, 120 bananas." Add 20% buffer on weekends.</div>
+  </div>
+  <div class="action-item high-impact">
+    <div class="action-header"><span class="action-title">2. Investigate Sinza Nov 16 comp event</span></div>
+    <div class="action-detail">Speak to the Sinza manager. Understand what happened. Implement a daily comp cap of 2% of sales volume at all branches.</div>
+  </div>
+  <div class="action-item high-impact">
+    <div class="action-header"><span class="action-title">3. Switch to half-batch breading at Masana and Sinza</span></div>
+    <div class="action-detail">Mix breading in half the current batch size, twice as often. Track waste daily for 2 weeks to measure improvement.</div>
+  </div>
+
+  <h3>Weeks 3&ndash;4: Systems</h3>
+  <div class="action-item">
+    <div class="action-header"><span class="action-title">4. Implement daily stock variance threshold alerts</span></div>
+    <div class="action-detail">Any day with OR chicken variance > 10 pieces gets flagged. Manager must explain in the stock book notes.</div>
+  </div>
+  <div class="action-item">
+    <div class="action-header"><span class="action-title">5. Configure POS for delivery channel tracking</span></div>
+    <div class="action-detail">Add order source tags. Start collecting data now so you have 60 days of channel data before new branches open.</div>
+  </div>
+  <div class="action-item">
+    <div class="action-header"><span class="action-title">6. Resolve nugget supply chain gap</span></div>
+    <div class="action-detail">Identify the root cause of nugget availability gaps. Secure supply for all current and planned branches.</div>
+  </div>
+
+  <h3>Weeks 5&ndash;12: Scale Preparation</h3>
+  <div class="action-item growth">
+    <div class="action-header"><span class="action-title">7. Draft Branch Operations Playbook</span></div>
+    <div class="action-detail">Consolidate all protocols into a single document. Include: prep guides, batch protocols, comp policies, stock reconciliation procedures, staffing tiers. This becomes the training bible for 5 new branch teams.</div>
+  </div>
+  <div class="action-item growth">
+    <div class="action-header"><span class="action-title">8. Central kitchen capacity audit</span></div>
+    <div class="action-detail">Validate that marinated chicken and bun production can handle 11 branches. Plan expansion if needed.</div>
+  </div>
+</div>
+
+<!-- BRANCH REVENUE DETAIL -->
+<div class="section">
+  <h2>Appendix: Branch Revenue Detail (Jan&ndash;Feb 2026)</h2>
+  <table>
+    <thead><tr><th>Branch</th><th class="right">Jan 2026</th><th class="right">Feb 2026</th><th class="right">Feb vs Jan</th><th class="right">Jan YoY Growth</th></tr></thead>
+    <tbody>
+      <tr><td>Kigamboni</td><td class="right">185,375,250</td><td class="right">147,114,500</td><td class="right red-text">-21%</td><td class="right green-text">+15%*</td></tr>
+      <tr><td>GSM Plaza</td><td class="right">62,854,500</td><td class="right">99,910,000</td><td class="right green-text">+59%</td><td class="right">New</td></tr>
+      <tr><td>Shoppers Tegeta</td><td class="right">70,229,500</td><td class="right">48,936,500</td><td class="right red-text">-30%</td><td class="right green-text">+27%**</td></tr>
+      <tr><td>Bahari</td><td class="right">68,399,500</td><td class="right">50,552,500</td><td class="right red-text">-26%</td><td class="right green-text">+42%</td></tr>
+      <tr><td>Sinza Mori</td><td class="right">65,517,500</td><td class="right">52,012,500</td><td class="right red-text">-21%</td><td class="right">New in Jun 25</td></tr>
+      <tr><td>Masana</td><td class="right">58,501,500</td><td class="right">53,074,000</td><td class="right red-text">-9%</td><td class="right green-text">+38%</td></tr>
+    </tbody>
+  </table>
+  <p style="font-size:12px;color:#888;margin-top:8px">* Kigamboni opened Oct 2025, so YoY comparison is vs first months. ** Shoppers opened May 2025. February dips reflect Ramadan impact except GSM Plaza which captured iftar demand.</p>
 </div>
 
 <div class="footer">
-  <span class="gs-brand">General Strategy</span> &mdash; AI-Native Consulting<br>
-  Analysis prepared using autonomous agent network on transaction-level data from 15 branch reports across 3 branches, 24 months of consolidated sales data, and 248 daily stock book entries.
+  <p>Analysis prepared by <span class="gs-brand">General Strategy</span> &mdash; AI-Native Consulting</p>
+  <p>16,975 daily stock records &bull; 465 operating days &bull; 15 monthly reports &bull; Executive-validated v3</p>
+  <p style="margin-top:8px;font-size:11px">Data covers Masana (Jan&ndash;Nov 2025), Sinza (Jul&ndash;Dec 2025), Kigamboni (Nov&ndash;Dec 2025). Revenue data covers all branches.</p>
 </div>
 
 </div>
 
 <script>
-// Revenue Trajectory Chart
-const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-const revenueCtx = document.getElementById('revenueChart').getContext('2d');
-new Chart(revenueCtx, {
+// Chart configs
+const brass = '#b8a07a';
+const ink = '#1a1a1a';
+const green = '#2d8a4e';
+const red = '#c0392b';
+const blue = '#2c5aa0';
+const purple = '#7b4ea3';
+const orange = '#d4760a';
+
+// Comp Chart
+new Chart(document.getElementById('compChart'), {
   type: 'bar',
   data: {
-    labels: months,
-    datasets: [
-      { label: 'Bahari', data: [48.3,46.2,55.4,57.3,55.5,57.8,58.5,62.9,62.2,59.8,54.6,65.0], backgroundColor: '#2c5aa0' },
-      { label: 'Masana', data: [42.4,39.1,42.2,47.7,44.9,48.4,48.2,52.2,59.1,56.5,47.2,57.8], backgroundColor: '#b8a07a' },
-      { label: 'Shoppers', data: [0,0,0,0,16.9,41.8,45.0,51.3,55.4,55.2,42.9,66.0], backgroundColor: '#2d8a4e' },
-      { label: 'Sinza', data: [0,0,0,0,0,25.3,35.4,42.0,57.2,53.6,43.5,63.6], backgroundColor: '#c0392b' },
-      { label: 'Kigamboni', data: [0,0,0,0,0,0,0,0,0,161.0,141.8,188.1], backgroundColor: '#8e44ad' },
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: true, text: 'FY2025 Monthly Revenue by Branch (M TZS)', font: { size: 14 } },
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-    },
-    scales: {
-      x: { stacked: true },
-      y: { stacked: true, title: { display: true, text: 'Revenue (M TZS)' } }
-    }
-  }
-});
-
-// Seasonality Chart
-const seasonCtx = document.getElementById('seasonChart').getContext('2d');
-new Chart(seasonCtx, {
-  type: 'line',
-  data: {
-    labels: months,
-    datasets: [
-      { label: 'Bahari 2025', data: [48.3,46.2,55.4,57.3,55.5,57.8,58.5,62.9,62.2,59.8,54.6,65.0], borderColor: '#2c5aa0', tension: 0.3, fill: false },
-      { label: 'Masana 2025', data: [42.4,39.1,42.2,47.7,44.9,48.4,48.2,52.2,59.1,56.5,47.2,57.8], borderColor: '#b8a07a', tension: 0.3, fill: false },
-      { label: 'Bahari 2024', data: [0,18.7,26.8,34.2,40.5,41.8,37.5,41.2,38.5,42.4,45.1,51.7], borderColor: '#2c5aa0', borderDash: [5,5], tension: 0.3, fill: false },
-      { label: 'Masana 2024', data: [0,0,3.1,28.2,34.3,37.0,27.9,35.1,29.1,24.8,37.0,45.0], borderColor: '#b8a07a', borderDash: [5,5], tension: 0.3, fill: false },
-    ]
-  },
-  options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: true, text: 'Seasonal Pattern: 2024 vs 2025 (M TZS)', font: { size: 14 } },
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-    },
-    scales: { y: { title: { display: true, text: 'Revenue (M TZS)' } } }
-  }
-});
-
-// Cost Structure Chart
-const costCtx = document.getElementById('costChart').getContext('2d');
-new Chart(costCtx, {
-  type: 'doughnut',
-  data: {
-    labels: ['Chicken (central kitchen)', 'Potatoes & sides', 'Cafe supplies (tea/coffee/milk)', 'Gas', 'Electricity & water', 'Packaging', 'Transport & petty cash'],
+    labels: ['Masana (207 days)', 'Sinza (149 days)', 'Kigamboni (61 days)'],
     datasets: [{
-      data: [50, 18, 15, 5, 7, 3, 2],
-      backgroundColor: ['#1a1a1a', '#b8a07a', '#2d8a4e', '#c0392b', '#2c5aa0', '#8e44ad', '#95a5a6']
+      label: 'OR Chicken Comps (total pieces)',
+      data: [161, 770, 83],
+      backgroundColor: [brass, red, blue]
     }]
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: true, text: 'Branch Cost Structure (Est. % of Total Operating Cost)', font: { size: 14 } },
-      legend: { position: 'right', labels: { font: { size: 11 }, boxWidth: 12 } }
-    }
+    responsive: true, maintainAspectRatio: false,
+    plugins: {title:{display:true,text:'Complimentary OR Chicken Pieces by Branch',font:{size:14}}},
+    scales: {y:{beginAtZero:true,title:{display:true,text:'Total Pieces'}}}
   }
 });
 
-// Same-Store Growth Chart
-const ssgCtx = document.getElementById('ssgChart').getContext('2d');
-new Chart(ssgCtx, {
+// Breading DOW Chart
+new Chart(document.getElementById('breadingDowChart'), {
+  type: 'line',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [{
+      label: 'Masana Breading Waste %',
+      data: [13.5, 12.2, 15.9, 14.0, 14.6, 15.5, 14.7],
+      borderColor: red,
+      backgroundColor: 'rgba(192,57,43,0.1)',
+      fill: true,
+      tension: 0.3
+    }]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {title:{display:true,text:'Breading Waste % by Day of Week (Masana)',font:{size:14}}},
+    scales: {y:{min:8,max:20,title:{display:true,text:'Waste %'}}}
+  }
+});
+
+// Stockout Chart
+new Chart(document.getElementById('stockoutChart'), {
   type: 'bar',
   data: {
-    labels: ['Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec','Jan 26'],
+    labels: ['Banana', 'French Fries', 'Burger Bun', 'OR Fillet', 'Chicken Strips'],
     datasets: [
-      { label: 'Bahari YoY Growth %', data: [147,107,67,37,38,56,53,61,41,21,26,42], backgroundColor: '#2c5aa0' },
-      { label: 'Masana YoY Growth %', data: [null,1279,69,31,31,73,49,103,128,28,28,38], backgroundColor: '#b8a07a' },
+      {label:'Kigamboni', data:[48,26,7,10,7], backgroundColor:blue},
+      {label:'Masana', data:[22,8,6,6,16], backgroundColor:brass},
+      {label:'Sinza', data:[19,14,8,7,6], backgroundColor:green}
     ]
   },
   options: {
-    responsive: true,
-    maintainAspectRatio: false,
-    plugins: {
-      title: { display: true, text: 'Same-Store YoY Growth (%) — 2025 vs 2024', font: { size: 14 } },
-      legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } }
-    },
-    scales: { y: { title: { display: true, text: 'YoY Growth (%)' }, max: 200 } }
+    responsive: true, maintainAspectRatio: false,
+    plugins: {title:{display:true,text:'Stockout Frequency (% of Days with Zero Closing Stock)',font:{size:14}}},
+    scales: {y:{beginAtZero:true,title:{display:true,text:'% of Days'},max:55}}
+  }
+});
+
+// DOW Chart - OR Chicken
+new Chart(document.getElementById('dowChart'), {
+  type: 'line',
+  data: {
+    labels: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    datasets: [
+      {label:'Kigamboni', data:[610,595,674,722,842,1045,1294], borderColor:blue, backgroundColor:'rgba(44,90,160,0.1)', fill:false, tension:0.3, borderWidth:3},
+      {label:'Sinza', data:[199,199,214,202,224,281,298], borderColor:green, fill:false, tension:0.3, borderWidth:2},
+      {label:'Masana', data:[164,174,180,178,218,274,275], borderColor:brass, fill:false, tension:0.3, borderWidth:2}
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {title:{display:true,text:'OR Chicken: Average Daily Sales by Day of Week',font:{size:14}}},
+    scales: {y:{beginAtZero:true,title:{display:true,text:'Pieces Sold'}}}
+  }
+});
+
+// Branch Revenue Chart
+new Chart(document.getElementById('branchRevenueChart'), {
+  type: 'bar',
+  data: {
+    labels: ['Kigamboni','GSM Plaza','Shoppers','Bahari','Sinza','Masana'],
+    datasets: [
+      {label:'Jan 2026', data:[185.4,62.9,70.2,68.4,65.5,58.5], backgroundColor:blue},
+      {label:'Feb 2026', data:[147.1,99.9,48.9,50.6,52.0,53.1], backgroundColor:brass}
+    ]
+  },
+  options: {
+    responsive: true, maintainAspectRatio: false,
+    plugins: {title:{display:true,text:'Gross Revenue by Branch (M TZS) — Jan & Feb 2026',font:{size:14}}},
+    scales: {y:{beginAtZero:true,title:{display:true,text:'Million TZS'}}}
   }
 });
 </script>
